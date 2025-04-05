@@ -230,11 +230,11 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     const { filepath, title, url, source_type } = citation
     let finalUrl = url
 
-    if (title?.includes("【SEJBO】") && filepath?.endsWith(".pptx")) {
+    if (title?.includes("【SEJBO】") && (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))) {
       finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
     } else if (
       title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
-      filepath?.endsWith(".xlsx")
+      (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))
     ) {
       finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
     } else if (source_type === 'wiki') {
@@ -242,11 +242,11 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     }
 
     return finalUrl ? (
-      <p>
+      <div>
         📍 関連情報: <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {filepath}</a>
-      </p>
+      </div>
     ) : (
-      <p>📍 関連情報: {filepath}</p>
+      <div>📍 関連情報: {filepath}</div>
     )
   }
 
@@ -348,7 +348,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
           <Stack.Item className={styles.answerDisclaimerContainer}>
-            <span className={styles.answerDisclaimer}>AI-generated content may be incorrect</span>
+            <span className={styles.answerDisclaimer}>AIが生成したコンテンツのため、不正確な情報が含まれる場合があります</span>
           </Stack.Item>
           {!!answer.exec_results?.length && (
             <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
