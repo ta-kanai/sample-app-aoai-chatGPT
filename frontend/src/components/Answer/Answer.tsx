@@ -226,6 +226,30 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     )
   }
 
+  const renderSourceLink = (citation: Citation) => {
+    const { filepath, title, url, source_type } = citation
+    let finalUrl = url
+
+    if (title?.includes("【SEJBO】") && filepath?.endsWith(".pptx")) {
+      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
+    } else if (
+      title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
+      filepath?.endsWith(".xlsx")
+    ) {
+      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
+    } else if (source_type === 'wiki') {
+      finalUrl = `http://34.85.107.111${filepath}`
+    }
+
+    return finalUrl ? (
+      <p>
+        📍 関連情報: <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {filepath}</a>
+      </p>
+    ) : (
+      <p>📍 関連情報: {filepath}</p>
+    )
+  }
+
   const components = {
     code({ node, ...props }: { node: any;[key: string]: any }) {
       let language
@@ -350,6 +374,13 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
+        {parsedAnswer?.citations.length > 0 && (
+          <div className={styles.citationWrapper}>
+            {parsedAnswer?.citations.map((citation, idx) => (
+              <div key={idx}>{renderSourceLink(citation)}</div>
+            ))}
+          </div>
+        )}
         {chevronIsExpanded && (
           <div className={styles.citationWrapper}>
             {parsedAnswer?.citations.map((citation, idx) => {
