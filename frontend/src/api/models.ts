@@ -18,6 +18,7 @@ export type Citation = {
   metadata: string | null
   chunk_id: string | null
   reindex_id: string | null
+  source_type: string | null
 }
 
 export type ToolMessageContent = {

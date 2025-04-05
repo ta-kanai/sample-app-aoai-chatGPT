@@ -374,7 +374,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
-        {parsedAnswer?.citations.length > 0 && (
+        {Array.isArray(parsedAnswer?.citations) && (parsedAnswer?.citations?.length ?? 0) > 0 && (
           <div className={styles.citationWrapper}>
             {parsedAnswer?.citations.map((citation, idx) => (
               <div key={idx}>{renderSourceLink(citation)}</div>
