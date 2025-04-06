@@ -226,41 +226,28 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     )
   }
 
-  const renderSourceLinks = (citations: Citation[]) => {
-    const seen = new Set<string>()
-    return citations
-      .filter((citation) => {
-        const key = citation.filepath ?? ''
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-      .map((citation, idx) => {
-        const { filepath, title, url, source_type } = citation
-        let finalUrl = url
-        let displayPath = filepath ?? `リンク${idx + 1}`
+  const renderSourceLink = (citation: Citation) => {
+    const { filepath, title, url, source_type } = citation
+    let finalUrl = url
 
-        if (title?.includes("【SEJBO】") && (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))) {
-          finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
-        } else if (
-          title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
-          (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))
-        ) {
-          finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
-        } else if (source_type === 'wiki') {
-          finalUrl = `http://34.85.107.111${filepath}`
-        }
+    if (title?.includes("【SEJBO】") && (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))) {
+      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
+    } else if (
+      title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
+      (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))
+    ) {
+      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
+    } else if (source_type === 'wiki') {
+      finalUrl = `http://34.85.107.111${filepath}`
+    }
 
-        return (
-          <div key={idx}>
-            📍 関連情報: {finalUrl ? (
-              <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {displayPath}</a>
-            ) : (
-              <>{displayPath}</>
-            )}
-          </div>
-        )
-      })
+    return finalUrl ? (
+      <div>
+        📍 関連情報: <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {filepath}</a>
+      </div>
+    ) : (
+      <div>📍 関連情報: {filepath}</div>
+    )
   }
 
   const components = {
@@ -387,9 +374,11 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
-        {parsedAnswer?.citations && parsedAnswer.citations.length > 0 && (
+        {Array.isArray(parsedAnswer?.citations) && (parsedAnswer?.citations?.length ?? 0) > 0 && (
           <div className={styles.citationWrapper}>
-            {renderSourceLinks(parsedAnswer.citations)}
+            {parsedAnswer?.citations.map((citation, idx) => (
+              <div key={idx}>{renderSourceLink(citation)}</div>
+            ))}
           </div>
         )}
         <div className={styles.citationWrapper}>
