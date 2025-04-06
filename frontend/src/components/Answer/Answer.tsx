@@ -226,28 +226,41 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
     )
   }
 
-  const renderSourceLink = (citation: Citation) => {
-    const { filepath, title, url, source_type } = citation
-    let finalUrl = url
+  const renderSourceLinks = (citations: Citation[]) => {
+    const seen = new Set<string>()
+    return citations
+      .filter((citation) => {
+        const key = citation.filepath ?? ''
+        if (seen.has(key)) return false
+        seen.add(key)
+        return true
+      })
+      .map((citation, idx) => {
+        const { filepath, title, url, source_type } = citation
+        let finalUrl = url
+        let displayPath = filepath ?? `リンク${idx + 1}`
 
-    if (title?.includes("【SEJBO】") && (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))) {
-      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
-    } else if (
-      title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
-      (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))
-    ) {
-      finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
-    } else if (source_type === 'wiki') {
-      finalUrl = `http://34.85.107.111${filepath}`
-    }
+        if (title?.includes("【SEJBO】") && (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))) {
+          finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/bo_doc"
+        } else if (
+          title?.match(/在庫|商品|WEBAPI|レスポンスメッセージ|7CENTRAL_Auth_API/) &&
+          (filepath?.includes(".xlsx") || filepath?.includes(".pptx"))
+        ) {
+          finalUrl = "https://cicd-sejapp.7andy.biz/7nm/stock_bo/stock_doc"
+        } else if (source_type === 'wiki') {
+          finalUrl = `http://34.85.107.111${filepath}`
+        }
 
-    return finalUrl ? (
-      <div>
-        📍 関連情報: <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {filepath}</a>
-      </div>
-    ) : (
-      <div>📍 関連情報: {filepath}</div>
-    )
+        return (
+          <div key={idx}>
+            📍 関連情報: {finalUrl ? (
+              <a href={finalUrl} target="_blank" rel="noopener noreferrer">🔗 {displayPath}</a>
+            ) : (
+              <>{displayPath}</>
+            )}
+          </div>
+        )
+      })
   }
 
   const components = {
@@ -322,6 +335,8 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
           </Stack>
         )}
         <Stack horizontal className={styles.answerFooter}>
+          {/* 表示しないように以下をコメントアウト */}
+          {/*
           {!!parsedAnswer?.citations.length && (
             <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
               <Stack style={{ width: '100%' }}>
@@ -347,9 +362,7 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
               </Stack>
             </Stack.Item>
           )}
-          <Stack.Item className={styles.answerDisclaimerContainer}>
-            <span className={styles.answerDisclaimer}>AIが生成したコンテンツのため、不正確な情報が含まれる場合があります</span>
-          </Stack.Item>
+          */}
           {!!answer.exec_results?.length && (
             <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
               <Stack style={{ width: '100%' }}>
@@ -374,13 +387,14 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
             </Stack.Item>
           )}
         </Stack>
-        {Array.isArray(parsedAnswer?.citations) && (parsedAnswer?.citations?.length ?? 0) > 0 && (
+        {parsedAnswer?.citations && parsedAnswer.citations.length > 0 && (
           <div className={styles.citationWrapper}>
-            {parsedAnswer?.citations.map((citation, idx) => (
-              <div key={idx}>{renderSourceLink(citation)}</div>
-            ))}
+            {renderSourceLinks(parsedAnswer.citations)}
           </div>
         )}
+        <div className={styles.citationWrapper}>
+          <div className={styles.answerDisclaimer}>AIが生成したコンテンツのため、不正確な情報が含まれる場合があります</div>
+        </div>
         {chevronIsExpanded && (
           <div className={styles.citationWrapper}>
             {parsedAnswer?.citations.map((citation, idx) => {
