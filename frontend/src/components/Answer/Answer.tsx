@@ -323,7 +323,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
         )}
         <Stack horizontal className={styles.answerFooter}>
           {/* 表示しないように以下をコメントアウト */}
-          {/*
           {!!parsedAnswer?.citations.length && (
             <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
               <Stack style={{ width: '100%' }}>
@@ -349,7 +348,6 @@ export const Answer = ({ answer, onCitationClicked, onExectResultClicked }: Prop
               </Stack>
             </Stack.Item>
           )}
-          */}
           {!!answer.exec_results?.length && (
             <Stack.Item onKeyDown={e => (e.key === 'Enter' || e.key === ' ' ? toggleIsRefAccordionOpen() : null)}>
               <Stack style={{ width: '100%' }}>
